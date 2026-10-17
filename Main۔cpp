@@ -1,0 +1,95 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+using namespace std;
+
+class Student {
+private:
+    int id;
+    string name;
+    float marks;
+public:
+    Student() {}
+    Student(int i, string n, float m) {
+        id = i; name = n; marks = m;
+    }
+    string getName() { return name; }
+    int getId() { return id; }
+
+    string getGrade() {
+        if(marks >= 90) return "A";
+        else if(marks >= 80) return "B";
+        else if(marks >= 60) return "C";
+        else return "Fail";
+    }
+    void display() {
+        cout << "ID: " << id << " | Name: " << name
+             << " | Marks: " << marks << " | Grade: " << getGrade() << endl;
+    }
+    void saveToFile(ofstream &out) {
+        out << id << " " << name << " " << marks << endl;
+    }
+};
+
+vector<Student> students;
+
+void saveAllToFile() {
+    ofstream out("students.txt");
+    for(auto &s : students) s.saveToFile(out);
+    out.close();
+    cout << "Data students.txt me save ho gaya!" << endl;
+}
+
+void loadFromFile() {
+    ifstream in("students.txt");
+    if(!in) return;
+    int id; string name; float marks;
+    while(in >> id >> name >> marks) {
+        students.push_back(Student(id, name, marks));
+    }
+    in.close();
+}
+
+void searchByName(string sName) {
+    bool found = false;
+    for(auto &s : students) {
+        if(s.getName() == sName) {
+            s.display(); found = true;
+        }
+    }
+    if(!found) cout << "Student nahi mila!" << endl;
+}
+
+int main() {
+    loadFromFile();
+    int choice;
+    do {
+        cout << "\n--- Student Management System ---" << endl;
+        cout << "1. Add Student" << endl;
+        cout << "2. Display All Students" << endl;
+        cout << "3. Search by Name" << endl;
+        cout << "4. Save to File" << endl;
+        cout << "0. Exit" << endl;
+        cout << "Choice: "; cin >> choice;
+
+        if(choice == 1) {
+            int id; string name; float marks;
+            cout << "Enter ID: "; cin >> id;
+            cout << "Enter Name: "; cin >> name;
+            cout << "Enter Marks: "; cin >> marks;
+            students.push_back(Student(id, name, marks));
+            cout << "Student Added Successfully!" << endl;
+        }
+        else if(choice == 2) {
+            if(students.empty()) cout << "No students added yet!" << endl;
+            for(auto &s : students) s.display();
+        }
+        else if(choice == 3) {
+            string n; cout << "Enter Name to Search: "; cin >> n;
+            searchByName(n);
+        }
+        else if(choice == 4) saveAllToFile();
+    } while(choice != 0);
+    return 0;
+}
